@@ -1,0 +1,36 @@
+[switch_ip]
+ip = 10.99.99.225
+
+[login_credentials]
+user_name = admin
+password = root
+ 
+[cross_connects]
+ingress_ports_range = 1-48
+egress_ports_range = 49-96
+
+[system_administration]
+serial_number = 1533
+switch_size = 48x48
+model_name = N-OST-48x48-HA1-DMHEV-050
+firmware = 6.5.1.7
+
+[interface_eth0]
+name = ETH0
+eth0_ip = 10.99.99.225
+gateway = 10.99.99.254
+mask = 255.0.0.0 
+broadcast = 10.255.255.255
+mac = 00:50:c2:2b:48:0e
+
+[interface_eth1]
+name = ETH1
+eth1_ip = 172.16.0.101
+gateway = 0.0.0.0
+mask = 255.255.255.0
+broadcast = 172.16.0.255
+mac = 00:50:c2:2b:48:0f
+
+
+
+

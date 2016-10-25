@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><testsuite name="nosetests" tests="1" errors="1" failures="0" skip="0"><testcase classname="&lt;nose.suite" name="ContextSuite context=testTL1TestSuite&gt;:setup" time="0.000"><error type="pexpect.exceptions.TIMEOUT" message="Timeout exceeded.&#10;&lt;pexpect.pty_spawn.spawn object at 0x7f126889d790&gt;&#10;command: /usr/bin/ssh&#10;args: ['/usr/bin/ssh', 'admin@10.99.99.225', '-p', '6252']&#10;buffer (last 100 chars): &quot;ou want to continue connecting (yes/no)? OPR-ARC-EQPT::REPMGR:123::IND;\r\nPlease type 'yes' or 'no': &quot;&#10;before (last 100 chars): &quot;ou want to continue connecting (yes/no)? OPR-ARC-EQPT::REPMGR:123::IND;\r\nPlease type 'yes' or 'no': &quot;&#10;after: &lt;class 'pexpect.exceptions.TIMEOUT'&gt;&#10;match: None&#10;match_index: None&#10;exitstatus: None&#10;flag_eof: False&#10;pid: 2147&#10;child_fd: 5&#10;closed: False&#10;timeout: 30&#10;delimiter: &lt;class 'pexpect.exceptions.EOF'&gt;&#10;logfile: None&#10;logfile_read: None&#10;logfile_send: None&#10;maxread: 2000&#10;ignorecase: False&#10;searchwindowsize: None&#10;delaybeforesend: 0.05&#10;delayafterclose: 0.1&#10;delayafterterminate: 0.1&#10;searcher: searcher_re:&#10;    0: re.compile(&quot;&gt;&quot;)"><![CDATA[Traceback (most recent call last):
+  File "/usr/lib/python2.7/dist-packages/nose/suite.py", line 208, in run
+    self.setUp()
+  File "/usr/lib/python2.7/dist-packages/nose/suite.py", line 291, in setUp
+    self.setupContext(ancestor)
+  File "/usr/lib/python2.7/dist-packages/nose/suite.py", line 314, in setupContext
+    try_run(context, names)
+  File "/usr/lib/python2.7/dist-packages/nose/util.py", line 471, in try_run
+    return func()
+  File "/home/polatis/tl1/tl1_test_cases.py", line 35, in setUpClass
+    cls.tl1.disable_aut_msg()
+  File "/home/polatis/tl1/lib/TL1.py", line 102, in disable_aut_msg
+    ses.expect ('>')
+  File "/usr/local/lib/python2.7/dist-packages/pexpect/spawnbase.py", line 321, in expect
+    timeout, searchwindowsize, async)
+  File "/usr/local/lib/python2.7/dist-packages/pexpect/spawnbase.py", line 345, in expect_list
+    return exp.expect_loop(timeout)
+  File "/usr/local/lib/python2.7/dist-packages/pexpect/expect.py", line 107, in expect_loop
+    return self.timeout(e)
+  File "/usr/local/lib/python2.7/dist-packages/pexpect/expect.py", line 70, in timeout
+    raise TIMEOUT(msg)
+TIMEOUT: Timeout exceeded.
+<pexpect.pty_spawn.spawn object at 0x7f126889d790>
+command: /usr/bin/ssh
+args: ['/usr/bin/ssh', 'admin@10.99.99.225', '-p', '6252']
+buffer (last 100 chars): "ou want to continue connecting (yes/no)? OPR-ARC-EQPT::REPMGR:123::IND;\r\nPlease type 'yes' or 'no': "
+before (last 100 chars): "ou want to continue connecting (yes/no)? OPR-ARC-EQPT::REPMGR:123::IND;\r\nPlease type 'yes' or 'no': "
+after: <class 'pexpect.exceptions.TIMEOUT'>
+match: None
+match_index: None
+exitstatus: None
+flag_eof: False
+pid: 2147
+child_fd: 5
+closed: False
+timeout: 30
+delimiter: <class 'pexpect.exceptions.EOF'>
+logfile: None
+logfile_read: None
+logfile_send: None
+maxread: 2000
+ignorecase: False
+searchwindowsize: None
+delaybeforesend: 0.05
+delayafterclose: 0.1
+delayafterterminate: 0.1
+searcher: searcher_re:
+    0: re.compile(">")
+]]></error></testcase></testsuite>

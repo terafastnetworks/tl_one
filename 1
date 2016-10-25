@@ -1,0 +1,256 @@
+import re
+import datetime
+import time
+import nose
+from TL1 import TL1
+from config import  get_config_arg
+from get_switch_ports import get_single_ingress_port
+from get_switch_ports import get_single_egress_port
+from get_switch_ports import get_multiple_ingress_port
+from get_switch_ports import get_multiple_egress_port
+
+
+oxcDict = {
+
+    'single_ingress_port'           : get_single_valid_ingress_port(),
+    'single_egress_port'            : get_single_valid_egress_port(),
+    'multiple_ingress_ports'        : get_multiple_valid_ingress_port(),
+    'multiple_egress_ports'         : get_single_valid_egress_port(),
+    'invalid_single_ingress_port'   : '100,101,102',
+    'invalid_single_egress_port'    : '200,201,202',
+    'invalid_multiple_ingress_ports': '100,101,102',
+    'invalid_multiple_egress_ports' : '200,201,202'
+
+
+}
+
+BOX_IP = get_config_arg('switch_ip', 'ip')
+
+
+class testTL1TestSuite:
+    """ Executing TL1 commands and validating the result """
+
+    @classmethod
+    def setUpClass(cls):
+        cls.tl1 = TL1(BOX_IP)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.tl1.close_socket()
+   
+    def create_box(self, testcase_name):
+        """create box for test case name.
+        Arguments:
+        testcase_name   :       valid testcase name
+        """
+
+        print "\n"
+        l = len(testcase_name) + 7
+        start_end_session = '       +' + (l * '-') + '+       '
+        middle = '| ' + '   ' + str(testcase_name) + '  ' + ' |'
+
+        print '%s\n       %s\n%s\n\n' % (start_end_session, middle, start_end_session)
+
+    def test_get_switch__serial_number(self):
+        """
+        testing query serial number functionality,
+        and validating the result
+        """
+           
+        self.create_box('test_get_serial_number')
+        result = self.tl1.execute_tl1_commands('RTRV-INV::OCS:1:;', 'test_get_serial_number')
+        serial_number = get_config_arg('system_administration', 'serial_number')
+        nose.tools.assert_in(serial_number, result), "Expected " "Result:'%s' is not Obtained in %s" % (serial_number, result)
+
+    def test_set_and_query_switch_time(self):
+        """
+        testing set switch time and query switch time functionality,
+        and validating the result
+        """
+
+	self.create_box('test_set_and_query_switch_time')
+	current_time = datetime.datetime.now()
+   	ex = current_time.strftime("%y-%m-%d,%H-%M-%S")
+       	result = self.tl1.execute_tl1_commands('ED-DAT:::123::%s;' %ex, 'set_switch_time')
+	print (time.strftime("%y-%m-%d,%H-%M-%S"))
+	ex = current_time.strftime("%y-%m-%d %H:%M:%S")
+      	nose.tools.assert_in(ex, result), "Expected " "Result:'%s' is not Obtained in %s" % (ex, result)
+
+	result = self.tl1.execute_tl1_commands('RTRV-TOD:::123:;','query_switch_time')
+	current_time = datetime.datetime.now()
+	ex = current_time.strftime("%Y,%m,%d,%H,%M")
+	nose.tools.assert_in(ex, result), "Expected " "Result:'%s' is not Obtained in %s" % (ex, result)
+
+    def test_session_timeout_set_and_query_for_admin(self):
+	"""
+        testing set session timeout and query session timeout for admin functionality,
+        and validating the result
+        """
+
+	self.create_box('test_session_timeout_set_and_query_for_admin')
+	ex = %get_config_arg('session_timeout','admin_timeout' )
+	result = self.tl1.execute_tl1_commands('ED-EQPT::TIMEOUT:123:::ADMIN=%s;' ex, 'set_session_timeout_for_admin')
+	nose.tools.assert_in('COMPLD', result), "Expected " "Result:'%s' is not Obtained in %s" % ('COMPLD', result)
+        
+        result = self.tl1.execute_tl1_commands('RTRV-EQPT::TIMEOUT:123:::PARAMETER=ADMIN;', 'query_session_timeout_for_admin') 
+        nose.tools.assert_in(get_config_arg('session_timeout','admin_timeout'), result), "Expected " "Result:'%s' is not Obtained in %s" % (get_config_arg('session_timeout','admin_timeout'), result)
+
+    def test_session_timeout_set_and_query_for_user(self):
+      	"""
+        testing set session timeout and query session timeout for user functionality,
+        and validating the result
+        """
+
+        self.create_box('test_session_timeout_set_and_query_for_user')
+
+        result = self.tl1.execute_tl1_commands('ED-EQPT::TIMEOUT:123:::USER=%s;' %get_config_arg('session_timeout','user_timeout' ), 'set_session_timeout_for_user')
+        nose.tools.assert_in('COMPLD', result), "Expected " "Result:'%s' is not Obtained in %s" % ('COMPLD', result)
+
+        result = self.tl1.execute_tl1_commands('RTRV-EQPT::TIMEOUT:123:::PARAMETER=USER;', 'query_session_timeout_for_user')
+        nose.tools.assert_in(get_config_arg('session_timeout','user_timeout'), result), "Expected " "Result:'%s' is not Obtained in %s" % (get_config_arg('session_timeout','user_timeout'), result)
+
+    def test_query_switch_size(self):
+	"""
+        testing query switch size functionality,
+        and validating the result
+        """
+
+	self.create_box('test_query_switch_size')
+
+	result = self.tl1.execute_tl1_commands('RTRV-EQPT::SYSTEM:123:::PARAMETER=SIZE;', 'query_switch_size')
+	nose.tools.assert_in(get_config_arg('system_administration','switch_size'), result),"Expected " "Result:'%s' is not Obtained in %s" % (get_config_arg('system_administration','switch_size'), result)
+
+    def test_query_header(self):
+	"""
+        testing query header functionality,
+        and validating the result
+        """
+	
+	self.create_box('test_query_header')
+
+	result = self.tl1.execute_tl1_commands('RTRV-HDR:::123:;', 'query_header')
+	nose.tools.assert_in('COMPLD', result), "Expected " "Result:'%s' is not Obtained in %s" % ('COMPLD', result)
+
+    def test_query_network_element_type(self):
+	"""
+        testing query network element type functionality,
+        and validating the result
+        """
+
+	self.create_box('test_query_network_element_type')
+	
+	result = self.tl1.execute_tl1_commands('RTRV-NETYPE:::123:;', 'query_network_element_type')
+	nose.tools.assert_in(get_config_arg('system_administration','network_element_type'), result),"Expected " "Result:'%s' is not Obtained in %s" % (get_config_arg('system_administration','network_element_type'), result)
+
+    def test_set_system_identifier(self):
+	"""
+        testing set system identifier functionality,
+        and validating the result
+        """
+
+	self.create_box('test_set_system_identifier')
+
+	result = self.tl1.execute_tl1_commands('SET-SID:::123::%s;' %get_config_arg('system_administration', 'switch_name'),'set_system_identifier')
+	nose.tools.assert_in(get_config_arg('system_administration','switch_name'), result), "Expected " "Result:'%s' is not Obtained in %s" % (get_config_arg('system_administration','switch_name'), result)
+
+    def test_query_ip_address_for_eth0_and_eth1(self):
+	"""
+        testing query ip address for eth0 and eth1 functionality,
+        and validating the result
+        """
+
+	self.create_box('test_query_ip_address_for_eth0_and_eth1')
+
+	result = self.tl1.execute_tl1_commands('RTRV-IP::eth0:123:;', 'query_ip_address_for_eth0')
+	nose.tools.assert_in(get_config_arg('interface_eth0','eth0_ip'), result),"Expected " "Result:'%s' is not Obtained in %s" % (get_config_arg('interface_eth0','eth0_ip'), result)
+
+	result = self.tl1.execute_tl1_commands('RTRV-IP::eth1:123:;', 'query_ip_address_for_eth1')
+        nose.tools.assert_in(get_config_arg('interface_eth1','eth1_ip'), result),"Expected " "Result:'%s' is not Obtained in %s" % (get_config_arg('interface_eth1','eth1_ip'), result)
+
+    def test_query_mac_address_for_eth0_and_eth1(self):
+	"""
+        testing query mac address for eth0 and eth1 functionality,
+        and validating the result
+        """
+
+	self.create_box('test_query_mac_address_for_eth0_and_eth1')
+
+        result = self.tl1.execute_tl1_commands('RTRV-MAC::eth0:123:;', 'query_mac_address_for_eth0')
+        nose.tools.assert_in(get_config_arg('interface_eth0','mac'), result),"Expected " "Result:'%s' is not Obtained in %s" % (get_config_arg('interface_eth0','mac'), result)
+
+        result = self.tl1.execute_tl1_commands('RTRV-MAC::eth1:123:;', 'query_mac_address_for_eth1')
+        nose.tools.assert_in(get_config_arg('interface_eth1','mac'), result),"Expected " "Result:'%s' is not Obtained in %s" % (get_config_arg('interface_eth1','mac'), result)
+
+    def test_set_reset_the_system(self):
+	"""
+        testing set reset the system with ph value 0,1,10 functionality,
+        and validating the result
+        """
+
+	self.create_box('test_reset_the_system')
+
+	result = self.tl1.execute_tl1_commands('INIT-SYS::SYSTEM:123::0;', 'reset_system_with_ph_value_0') 
+	nose.tools.assert_in('COMPLD', result), "Expected " "Result:'%s' is not Obtained in %s" % ('COMPLD', result)
+
+	result = self.tl1.execute_tl1_commands('INIT-SYS::SYSTEM:123::1;', 'reset_system_with_ph_value_1')
+        nose.tools.assert_in('COMPLD', result), "Expected " "Result:'%s' is not Obtained in %s" % ('COMPLD', result)
+
+	#result = self.tl1.execute_tl1_commands('INIT-SYS::SYSTEM:123::10;', 'reset_system_with_ph_value_10')
+        #nose.tools.assert_in('', result), "Expected " "Result:'%s' is not Obtained in %s" % ('', result)
+
+    def test_set_and_query_switch_startup_mode_using_dark_mode(self):
+	"""
+        testing set and query switch startup mode using dark mode functionality,
+        and validating the result
+        """
+
+	self.create_box('test_set_and_query_switch_startup_mode_using_dark_mode')
+
+	result = self.tl1.execute_tl1_commands('ED-EQPT::BOOT:123:::MODE=%s;' %get_config_arg('switch_startup_mode','state_1'), 'set_switch_startup_mode_using_dark_mode')
+	nose.tools.assert_in('COMPLD', result), "Expected " "Result:'%s' is not Obtained in %s" % ('COMPLD', result)
+
+	result = self.tl1.execute_tl1_commands('RTRV-EQPT::BOOT:123:::PARAMETER=MODE;', 'query_switch_startup_mode_using_dark_mode')
+        nose.tools.assert_in(get_config_arg('switch_startup_mode','state_1'), result), "Expected " "Result:'%s' is not Obtained in %s"  % (get_config_arg('switch_startup_mode','state_1'), result)
+
+    def test_set_and_query_switch_startup_mode_using_restore_mode(self):
+	"""
+        testing set and query switch startup mode using restore mode functionality,
+        and validating the result
+        """
+
+        self.create_box('test_set_and_query_switch_startup_mode_using_restore_mode')
+
+        result = self.tl1.execute_tl1_commands('ED-EQPT::BOOT:123:::MODE=%s;' %get_config_arg('switch_startup_mode','state_2'), 'set_switch_startup_mode_using_restore_mode')
+        nose.tools.assert_in('COMPLD', result), "Expected " "Result:'%s' is not Obtained in %s" % ('COMPLD', result)
+
+        result = self.tl1.execute_tl1_commands('RTRV-EQPT::BOOT:123:::PARAMETER=MODE;', 'query_switch_startup_mode_using_restore_mode')
+        nose.tools.assert_in(get_config_arg('switch_startup_mode','state_2'), result), "Expected " "Result:'%s' is not Obtained in %s"  % (get_config_arg('switch_startup_mode','state_2'), result)
+
+
+    def test_set_and_query_oxc_individual_port(self):
+	"""
+        testing set and query oxc individual port functionality,
+        and validating the result
+        """
+
+	self.create_box('test_set_and_query_oxc_individual_port')
+
+	result = self.tl1.execute_tl1_commands('ENT-PATCH::%s,%s:123:;' % (oxcDict['valid_single_ingress_ports'], oxcDict['valid_single_egress_ports']), 'set_oxc_individual_port')
+	nose.tools.assert_in('COMPLD', result), "Expected " "Result:'%s' is not Obtained in %s" % ('COMPLD', result)
+      
+        result = self.tl1.execute_tl1_commands('RTRV-PATCH::%s:123:;'% (oxcDict['valid_single_ingress_ports']),'query_oxc_individual_port')
+	print type(oxcDict['valid_single_ingress_ports'])
+	print type(result)
+	nose.tools.assert_in(str(oxcDict['valid_single_ingress_ports']), result), "Expected " "Result:'%s' is not Obtained in %s"  % (str(oxcDict['valid_single_ingress_ports']), result)
+
+    def test_set_and_query_single_port_label(self):
+	"""
+        testing set and query single port label functionality,
+        and validating the result
+        """
+
+	self.create_box('test_set_and_query_single_port_label')
+
+	result = self.tl1.execute_tl1_commands('ED-PORT-LABEL::%s:123:::LABEL=src;' %(oxcDict['valid_single_ingress_ports'])),  
+	
+
