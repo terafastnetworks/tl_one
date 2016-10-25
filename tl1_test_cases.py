@@ -138,7 +138,7 @@ class testTL1TestSuite:
 
 	self.create_box('test_query_network_element_type')
 	
-	result = self.tl1.execute_tl1_commands(case = 'valid', cmd = 'RTRV-NETYPE:::123:;', testcase_name = 'query_network_element_type')
+	result = self.tl1.execute_tl1_commands(cases = 'valid', cmd = 'RTRV-NETYPE:::123:;', testcase_name = 'query_network_element_type')
 	nose.tools.assert_in('OCS', result, "getting error when querying network element type")
 
     def test_set_system_identifier(self):
